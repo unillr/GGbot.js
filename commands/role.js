@@ -4,17 +4,17 @@ const { MessageEmbed, DiscordAPIError } = require('discord.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('role')
-        .setDescription('自分のロールを付け外しできるよ')
+        .setDescription('自分のロールを付け外しできるよ!')
         .addRoleOption(option =>
             option.setName('ロール')
-                .setDescription('付けたい/外したいロール')),
+                .setDescription('付けたい[外したい]ロール')),
     async execute(interaction) {
         const role = interaction.options.getRole('ロール');
 
         if (!role) {
             const embed = new MessageEmbed().setTitle('ロールリスト');
 
-            const categoryName = ['PC', 'Mobile', 'Console', 'Others'];
+            const categoryName = ['🖥️PC', '📱Mobile', '🎮Console', 'Others'];
             const categoryColor = [0xff0000, 0x00ff00, 0x0000ff, 0xffffff];
 
             for (let i = 0; i < categoryName.length; i++) {
@@ -24,27 +24,26 @@ module.exports = {
                 embed.addField(categoryName[i], rolesName.join('\n'), true);
             }
 
-            await interaction.reply({ embeds: [embed] });
+            await interaction.reply({ embeds: [embed], ephemeral: true });
 
             return;
         }
 
         try {
-            const roles = interaction.member.roles;
+            const member = interaction.member;
 
-            if (roles.cache.some(MemberRole => role.equals(MemberRole))) {
-                await roles.remove(role);
-                await interaction.reply(`${role.name}を外したよ`);
+            if (member.roles.cache.some(memberRole => role.equals(memberRole))) {
+                await member.roles.remove(role);
+                await interaction.reply(`${member.displayName}が${role.name}から去ったよ!`);
             } else {
-                await roles.add(role);
-                await interaction.reply(`${role.name}を付けたよ`);
+                await member.roles.add(role);
+                await interaction.reply(`${member.displayName}が${role.name}の仲間になったよ!`);
             }
         } catch (error) {
             if (error instanceof DiscordAPIError) {
-                await interaction.reply({ content: `${role.name}は付け外しできないよ`, ephemeral: true });
+                await interaction.reply({ content: `${role.name}は付け外しできないよ!`, ephemeral: true });
             } else {
-                console.error(error);
-                await interaction.reply({ content: 'エラーがおこったよ', ephemeral: true });
+                throw error;
             }
         }
     },
