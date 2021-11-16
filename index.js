@@ -1,6 +1,5 @@
 const fs = require('fs');
 const { Client, Intents, Collection } = require('discord.js');
-const TOKEN = process.env.DISCORD_TOKEN;
 
 const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
 
@@ -39,4 +38,4 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-client.login(TOKEN);
+client.login();
