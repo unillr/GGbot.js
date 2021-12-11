@@ -5,6 +5,12 @@ module.exports = {
     async execute(interaction) {
         if (!interaction.isButton()) return;
         if (interaction.customId !== 'repick') return;
-        await map.execute(interaction);
+
+        try {
+            await map.execute(interaction);
+        } catch (error) {
+            console.error(error);
+            await interaction.reply({ content: 'エラーがおこったよ!', ephemeral: true });
+        }
     },
 };

@@ -4,7 +4,7 @@ const { MessageActionRow, MessageButton } = require('discord.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('map')
-        .setDescription('ランダムにMAPを返すよ！'),
+        .setDescription('VALORANTのMAPをランダムに選ぶよ！'),
     async execute(interaction) {
         const mapNames = ['Ascent', 'Bind', 'Breeze', 'Fracture', 'Haven', 'Icebox', 'Split'];
         const pickedMapName = mapNames[Math.floor(Math.random() * mapNames.length)];
@@ -14,7 +14,6 @@ module.exports = {
                 new MessageButton()
                     .setCustomId('repick')
                     .setLabel('もういちど選ぶ')
-                    .setEmoji('🔁')
                     .setStyle('PRIMARY'),
             );
 
