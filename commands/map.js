@@ -1,5 +1,5 @@
-const { SlashCommandBuilder, bold } = require('@discordjs/builders');
-const { MessageActionRow, MessageButton } = require('discord.js');
+const { SlashCommandBuilder } = require('@discordjs/builders');
+const { MessageActionRow, MessageEmbed, MessageButton, MessageAttachment } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -9,18 +9,34 @@ module.exports = {
         const mapNames = ['Ascent', 'Bind', 'Breeze', 'Fracture', 'Haven', 'Icebox', 'Split'];
         const pickedMapName = mapNames[Math.floor(Math.random() * mapNames.length)];
 
+        const attachment = new MessageAttachment()
+            .setFile(`./images/maps/${pickedMapName}.png`, `${pickedMapName}.png`);
+
+        const embed = new MessageEmbed()
+            .setTitle(pickedMapName.toUpperCase())
+            .setImage(`attachment://${pickedMapName}.png`)
+            .setColor('#fa4454');
+
         const row = new MessageActionRow()
             .addComponents(
                 new MessageButton()
                     .setCustomId('repick')
-                    .setLabel('もういちど選ぶ')
+                    .setLabel('選び直す')
                     .setStyle('PRIMARY'),
             );
 
-        await interaction.reply({
-            content: bold(pickedMapName.toUpperCase()),
-            files: [`./images/maps/${pickedMapName}.png`],
-            components: [row],
-        });
+        if (interaction.customId === 'repick') {
+            await interaction.update({
+                files: [attachment],
+                embeds: [embed],
+                components: [row],
+            });
+        } else {
+            await interaction.reply({
+                files: [attachment],
+                embeds: [embed],
+                components: [row],
+            });
+        }
     },
 };
