@@ -9,6 +9,7 @@ module.exports = {
     createReplyOptions: mapName => ({
         files: [new MessageAttachment()
             .setFile(`./images/maps/${mapName}.png`, `${mapName}.png`)],
+        //  .setFile('https://avatars.githubusercontent.com/u/55926286', `${mapName}.png`)],
         embeds: [new MessageEmbed()
             .setTitle(mapName.toUpperCase())
             .setImage(`attachment://${mapName}.png`)
