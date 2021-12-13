@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageEmbed, MessageButton, MessageAttachment } = require('discord.js');
+const { MessageActionRow, MessageEmbed, MessageButton } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -7,9 +7,11 @@ module.exports = {
         .setDescription('VALORANTのMAPをランダムに選ぶよ！'),
     maps: ['Ascent', 'Bind', 'Breeze', 'Fracture', 'Haven', 'Icebox', 'Split'],
     createReplyOptions: mapName => ({
-        files: [new MessageAttachment()
-            .setFile(`./images/maps/${mapName}.png`, `${mapName}.png`)],
-        //  .setFile('https://avatars.githubusercontent.com/u/55926286', `${mapName}.png`)],
+        files: [{
+            attachment: `./images/maps/${mapName}.png`,
+            // attachment: 'https://avatars.githubusercontent.com/u/55926286',
+            name: `${mapName}.png`,
+        }],
         embeds: [new MessageEmbed()
             .setTitle(mapName.toUpperCase())
             .setImage(`attachment://${mapName}.png`)
