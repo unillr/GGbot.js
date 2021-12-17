@@ -44,10 +44,10 @@ module.exports = {
         const message = await interaction.reply({ content: `${interaction.member}`, components: [this.row], fetchReply: true });
 
         try {
-            const hand1 = await message.awaitMessageComponent({ filter: filter1, componentType: 'SELECT_MENU', time: 15000 });
+            const hand1 = await message.awaitMessageComponent({ filter: filter1, componentType: 'SELECT_MENU', time: 30000 });
             await hand1.update({ content: `${opponent}` });
 
-            const hand2 = await message.awaitMessageComponent({ filter: filter2, componentType: 'SELECT_MENU', time: 15000 });
+            const hand2 = await message.awaitMessageComponent({ filter: filter2, componentType: 'SELECT_MENU', time: 30000 });
 
             const judge = (emojis.indexOf(hand1.values[0]) - emojis.indexOf(hand2.values[0]) + 3) % 3;
             let result = `${hand1.member.displayName}${hand1.values[0]} vs. ${hand2.values[0]}${hand2.member.displayName}\n`;
