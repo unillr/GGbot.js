@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed, DiscordAPIError } = require('discord.js');
+const { MessageEmbed, DiscordAPIError, Collection, MessageActionRow, MessageButton } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -8,40 +8,53 @@ module.exports = {
         .addRoleOption(option =>
             option.setName('ロール')
                 .setDescription('付けたい[外したい]ロール')),
+
+    category: new Collection([[0xff0000, '🖥️PC'], [0x00ff00, '📱Mobile'], [0x0000ff, '🎮Console'], [0xffffff, 'Others']]),
+
+    row: new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+                .setCustomId('hide')
+                .setLabel('自分のロールを隠す')
+                .setStyle('PRIMARY'),
+        ),
+
+    createRoleList(guildRoles) {
+        const roleListEmbed = new MessageEmbed().setTitle('ロールリスト');
+
+        for (let i = 0; i < this.category.size; i++) {
+            const roleList = guildRoles
+                .filter(guildRole => guildRole.color === this.category.keyAt(i))
+                .map(categorizedRole => categorizedRole.name);
+
+            roleListEmbed.addField(this.category.at(i), roleList.join('\n'), true);
+        }
+
+        return roleListEmbed;
+    },
+
     async execute(interaction) {
-        const role = interaction.options.getRole('ロール');
+        const gottenRole = interaction.options.getRole('ロール');
 
-        if (!role) {
-            const embed = new MessageEmbed().setTitle('ロールリスト');
-
-            const categoryName = ['🖥️PC', '📱Mobile', '🎮Console', 'Others'];
-            const categoryColor = [0xff0000, 0x00ff00, 0x0000ff, 0xffffff];
-
-            for (let i = 0; i < categoryName.length; i++) {
-                const rolesName = interaction.guild.roles.cache
-                    .filter(guildRole => guildRole.color === categoryColor[i])
-                    .map(filteredRole => filteredRole.name);
-                embed.addField(categoryName[i], rolesName.join('\n'), true);
-            }
-
-            await interaction.reply({ embeds: [embed], ephemeral: true });
-
+        if (!gottenRole) {
+            const embed = this.createRoleList(interaction.guild.roles.cache);
+            await interaction.reply({ embeds: [embed], components: [this.row], ephemeral: true });
             return;
         }
 
         try {
             const member = interaction.member;
 
-            if (member.roles.cache.some(memberRole => role.equals(memberRole))) {
-                await member.roles.remove(role);
-                await interaction.reply(`${member.displayName}が${role.name}から去ったよ!`);
+            if (member.roles.cache.some(memberRole => memberRole.id === gottenRole.id)) {
+                await member.roles.remove(gottenRole);
+                await interaction.reply(`${member.displayName}が${gottenRole.name}から去ったよ!`);
             } else {
-                await member.roles.add(role);
-                await interaction.reply(`${member.displayName}が${role.name}の仲間になったよ!`);
+                await member.roles.add(gottenRole);
+                await interaction.reply(`${member.displayName}が${gottenRole.name}の仲間になったよ!`);
             }
         } catch (error) {
             if (error instanceof DiscordAPIError) {
-                await interaction.reply({ content: `${role.name}は付け外しできないよ!`, ephemeral: true });
+                await interaction.reply({ content: `${gottenRole.name}は付け外しできないよ!`, ephemeral: true });
             } else {
                 throw error;
             }
