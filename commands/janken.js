@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageActionRow, MessageSelectMenu } = require('discord.js');
+const { MessageActionRow, MessageSelectMenu, Collection } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -10,55 +10,55 @@ module.exports = {
                 .setDescription('じゃんけんをする相手')
                 .setRequired(true),
         ),
+
+    hands: new Collection(['グー', '✊'], ['チョキ', '✌'], ['パー', '🖐']),
+
+    createHandOptions() {
+        const handOptions = [];
+        for (let i = 0; i < this.hands.size; i++) {
+            handOptions.push({
+                lebel: this.hands.keyAt(i),
+                emoji: this.hands.at(i),
+                value: this.hands.at(i),
+            });
+        }
+        return handOptions;
+    },
+
     row: new MessageActionRow()
         .addComponents(
             new MessageSelectMenu()
                 .setCustomId('hands')
                 .setPlaceholder('出す手を選んでね！')
-                .addOptions([
-                    {
-                        label: 'グー',
-                        emoji: '✊',
-                        value: '✊',
-                    },
-                    {
-                        label: 'チョキ',
-                        emoji: '✌',
-                        value: '✌',
-                    },
-                    {
-                        label: 'パー',
-                        emoji: '🖐',
-                        value: '🖐',
-                    },
-                ]),
+                .addOptions(this.createHandOptions()),
         ),
-    async execute(interaction) {
-        const emojis = ['✊', '✌', '🖐'];
 
+    async execute(interaction) {
         const opponent = interaction.options.getUser('相手');
 
-        const filter1 = i => i.member.id === interaction.member.id;
-        const filter2 = i => i.member.id === opponent.id;
-
         const message = await interaction.reply({ content: `${interaction.member}`, components: [this.row], fetchReply: true });
-
         try {
-            const hand1 = await message.awaitMessageComponent({ filter: filter1, componentType: 'SELECT_MENU', time: 30000 });
-            await hand1.update({ content: `${opponent}` });
+            const isSender = i => i.member.id === interaction.member.id;
+            const senderHand = await message.awaitMessageComponent({ filter: isSender, componentType: 'SELECT_MENU', time: 30000 });
+            await senderHand.update({ content: `${opponent}` });
 
-            const hand2 = await message.awaitMessageComponent({ filter: filter2, componentType: 'SELECT_MENU', time: 30000 });
+            const isOpponent = i => i.member.id === opponent.id;
+            const opponentHand = await message.awaitMessageComponent({ filter: isOpponent, componentType: 'SELECT_MENU', time: 30000 });
 
-            const judge = (emojis.indexOf(hand1.values[0]) - emojis.indexOf(hand2.values[0]) + 3) % 3;
-            let result = `${hand1.member.displayName}${hand1.values[0]} vs. ${hand2.values[0]}${hand2.member.displayName}\n`;
+            const handEmojis = [...this.hands.values()];
+            const judge = (handEmojis.indexOf(senderHand.values[0]) - handEmojis.indexOf(opponentHand.values[0]) + 3) % 3;
+
+            let result = `${senderHand.member.displayName}${senderHand.values[0]} vs. ${opponentHand.values[0]}${opponentHand.member.displayName}\n`;
+
             if (judge === 0) {
                 result += '引き分け！';
             } else if (judge === 1) {
-                result += `${hand2.member.displayName}の勝ち！`;
+                result += `${opponentHand.member.displayName}の勝ち！`;
             } else {
-                result += `${hand1.member.displayName}の勝ち！`;
+                result += `${senderHand.member.displayName}の勝ち！`;
             }
-            await hand2.update({ content: result, components: [] });
+
+            await opponentHand.update({ content: result, components: [] });
         } catch (error) {
             await interaction.editReply({ content: '時間切れだよ！', components: [] });
         }
