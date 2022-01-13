@@ -11,32 +11,30 @@ module.exports = {
                 .setRequired(true),
         ),
 
-    hands: new Collection(['グー', '✊'], ['チョキ', '✌'], ['パー', '🖐']),
+    hands: new Collection([['グー', '✊'], ['チョキ', '✌'], ['パー', '🖐']]),
 
-    createHandOptions() {
+    createHandMenu: function() {
         const handOptions = [];
         for (let i = 0; i < this.hands.size; i++) {
             handOptions.push({
-                lebel: this.hands.keyAt(i),
+                label: this.hands.keyAt(i),
                 emoji: this.hands.at(i),
                 value: this.hands.at(i),
             });
         }
-        return handOptions;
+        return new MessageActionRow()
+            .addComponents(
+                new MessageSelectMenu()
+                    .setCustomId('hands')
+                    .setPlaceholder('出す手を選んでね！')
+                    .addOptions(handOptions),
+            );
     },
-
-    row: new MessageActionRow()
-        .addComponents(
-            new MessageSelectMenu()
-                .setCustomId('hands')
-                .setPlaceholder('出す手を選んでね！')
-                .addOptions(this.createHandOptions()),
-        ),
 
     async execute(interaction) {
         const opponent = interaction.options.getUser('相手');
 
-        const message = await interaction.reply({ content: `${interaction.member}`, components: [this.row], fetchReply: true });
+        const message = await interaction.reply({ content: `${interaction.member}`, components: [this.createHandMenu()], fetchReply: true });
         try {
             const isSender = i => i.member.id === interaction.member.id;
             const senderHand = await message.awaitMessageComponent({ filter: isSender, componentType: 'SELECT_MENU', time: 30000 });
