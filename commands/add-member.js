@@ -12,6 +12,11 @@ module.exports = {
         const teamChannels = [...teamCategory.children.values()]
             .filter(channel => channel.isText())
             .filter(channel => channel.permissionsFor(interaction.member).has(Permissions.FLAGS.MANAGE_CHANNELS));
+        if (!teamChannels.length) {
+            await interaction.reply({ content: '招待可能なチームがないよ!', ephemeral: true });
+            return;
+        }
+
         const selectMenuOptions = [];
         for (const channel of teamChannels) {
             selectMenuOptions.push({
