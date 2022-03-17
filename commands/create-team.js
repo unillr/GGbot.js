@@ -32,7 +32,7 @@ module.exports = {
                 },
                 {
                     id: interaction.client.user.id,
-                    allow: [Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.MANAGE_CHANNELS],
+                    allow: [Permissions.FLAGS.VIEW_CHANNEL],
                 },
             ],
         });
@@ -50,7 +50,7 @@ module.exports = {
                 },
                 {
                     id: interaction.client.user.id,
-                    allow: [Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.CONNECT, Permissions.FLAGS.MANAGE_CHANNELS],
+                    allow: [Permissions.FLAGS.VIEW_CHANNEL, Permissions.FLAGS.CONNECT],
                 },
             ],
         });

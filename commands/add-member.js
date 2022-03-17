@@ -10,8 +10,7 @@ module.exports = {
     async execute(interaction) {
         const teamCategory = interaction.guild.channels.cache.get('949575751034875944');
         const teamChannels = [...teamCategory.children.values()]
-            .filter(channel => channel.isText())
-            .filter(channel => channel.permissionsFor(interaction.member).has(Permissions.FLAGS.MANAGE_CHANNELS));
+            .filter(channel => channel.isText() && channel.permissionsFor(interaction.member).has(Permissions.FLAGS.MANAGE_CHANNELS));
         if (!teamChannels.length) {
             await interaction.reply({ content: '招待可能なチームがないよ!', ephemeral: true });
             return;
